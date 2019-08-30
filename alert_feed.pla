@@ -11,9 +11,14 @@ Variables:
 if (AlertEnabled = false) then
     RaiseRunTimeError("Note: the 'Enable Alerts' option of this script is disabled.");
     
+// Determine how long the feed is inactive and stop the loop when the session is closed. 
+//For #ES_F you have to use two sessions else it will keep triggering during a small window between the regular and overnight session 
+//for that you have to use sess2firstbartime and sess2endtime
+if time >sess1firstbartime and time < sess1endtime then
+	secondsSinceUpdate=(computerdatetime-datetime_bar_update)*86400
+else
+	secondsSinceUpdate = 0 ; 
 
-// Determine how long the feed is inactive
-secondsSinceUpdate=(computerdatetime-datetime_bar_update)*86400;
 // Calculate how long ago the previous alert was
 secondsSinceAlert = (ComputerDateTime - timeLastAlert)*86400 ; ///ELTimeToDateTime_s(1);
 
