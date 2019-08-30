@@ -1,0 +1,36 @@
+Inputs:
+    DataFeed_Timeout(30),
+    Time_Between_Alerts(30);
+
+Variables:
+    secondsSinceUpdate(0),
+    secondsSinceAlert(0),
+    IntrabarPersist timeLastAlert(0);
+
+// Generate error when alerts are turned off
+if (AlertEnabled = false) then
+    RaiseRunTimeError("Note: the 'Enable Alerts' option of this script is disabled.");
+    
+
+// Determine how long the feed is inactive
+secondsSinceUpdate=(computerdatetime-datetime_bar_update)*86400;
+// Calculate how long ago the previous alert was
+secondsSinceAlert = (ComputerDateTime - timeLastAlert)*86400 ; ///ELTimeToDateTime_s(1);
+
+Plot1("Feed inactive: " + NumToStr(secondsSinceUpdate, 0) + " secs");
+
+if secondsSinceUpdate > DataFeed_Timeout and
+  secondsSinceAlert > Time_Between_Alerts 
+then begin
+    Alert("The feed hasn't updated in " + 
+        NumToStr(secondsSinceUpdate, 0) + " seconds (" + 
+        ExchListed + ":" + SymbolName + ").");
+
+    PlaySound("f:/tts_audio/data_alert.wav");
+
+    timeLastAlert = ComputerDateTime;
+
+end;
+
+
+RecalcLastBarAfter(1);
